@@ -32,13 +32,18 @@ import (
 )
 
 const (
-	defaultConnectionTimeout = 20 * time.Second
-	defaultRequestTimeout    = 60 * time.Second
+	// DefaultConnectionTimeout is default timeout in seconds
+	// to make network connections to Kinetic devices.
+	DefaultConnectionTimeout = 10 * time.Second
+	// DefaultRequestTimeout is default timeout in seconds
+	// for any Kinetic API call. If Kinetic device no response
+	// within this time period, timeout error will trigger.
+	DefaultRequestTimeout = 50 * time.Second
 )
 
 var (
-	connectionTimeout = defaultConnectionTimeout
-	requestTimeout    = defaultRequestTimeout
+	connectionTimeout = DefaultConnectionTimeout
+	requestTimeout    = DefaultRequestTimeout
 )
 
 func newMessage(t kproto.Message_AuthType) *kproto.Message {
@@ -80,10 +85,10 @@ func newNetworkService(op ClientOptions) (*networkService, error) {
 	var err error
 
 	if op.Timeout > 0 {
-		connectionTimeout = time.Duration(op.Timeout) * time.Millisecond
+		connectionTimeout = time.Duration(op.Timeout) * time.Second
 	}
 	if op.RequestTimeout > 0 {
-		requestTimeout = time.Duration(op.RequestTimeout) * time.Millisecond
+		requestTimeout = time.Duration(op.RequestTimeout) * time.Second
 	}
 
 	target := fmt.Sprintf("%s:%d", op.Host, op.Port)
@@ -124,15 +129,17 @@ func newNetworkService(op ClientOptions) (*networkService, error) {
 	}
 
 	klog.Debugf("Connected to %s:%d", op.Host, op.Port)
-	klog.Debugf("\tVendor: %s", ns.device.Configuration.Vendor)
-	klog.Debugf("\tModel: %s", ns.device.Configuration.Model)
-	klog.Debugf("\tWorldWideName: %s", ns.device.Configuration.WorldWideName)
-	klog.Debugf("\tSerial Number: %s", ns.device.Configuration.SerialNumber)
-	klog.Debugf("\tFirmware Version: %s", ns.device.Configuration.Version)
-	klog.Debugf("\tKinetic Protocol Version: %s", ns.device.Configuration.ProtocolVersion)
-	klog.Debugf("\tPort: %d", ns.device.Configuration.Port)
-	klog.Debugf("\tTlsPort: %d", ns.device.Configuration.TLSPort)
-	klog.Debugf("\tCurrentPowerLevel : %s", ns.device.Configuration.CurrentPowerLevel.String())
+	klog.Debugf("    Vendor: %s", ns.device.Configuration.Vendor)
+	klog.Debugf("    Model: %s", ns.device.Configuration.Model)
+	klog.Debugf("    WorldWideName: %s", ns.device.Configuration.WorldWideName)
+	klog.Debugf("    Serial Number: %s", ns.device.Configuration.SerialNumber)
+	klog.Debugf("    Firmware Version: %s", ns.device.Configuration.Version)
+	klog.Debugf("    Kinetic Protocol Version: %s", ns.device.Configuration.ProtocolVersion)
+	klog.Debugf("    Port: %d", ns.device.Configuration.Port)
+	klog.Debugf("    TlsPort: %d", ns.device.Configuration.TLSPort)
+	klog.Debugf("    CurrentPowerLevel : %s", ns.device.Configuration.CurrentPowerLevel.String())
+	klog.Debugf("    Connection Timeout : %d s", connectionTimeout/time.Second)
+	klog.Debugf("    Operation Timeout : %d s", requestTimeout/time.Second)
 
 	return ns, nil
 }
