@@ -85,10 +85,12 @@ func newNetworkService(op ClientOptions) (*networkService, error) {
 	var err error
 
 	if op.Timeout > 0 {
-		connectionTimeout = time.Duration(op.Timeout) * time.Second
+		// Timeout value in ClientOptions is in Millisecond
+		connectionTimeout = time.Duration(op.Timeout) * time.Millisecond
 	}
 	if op.RequestTimeout > 0 {
-		requestTimeout = time.Duration(op.RequestTimeout) * time.Second
+		// RequestTimeout value in ClientOptions is in Millisecond
+		requestTimeout = time.Duration(op.RequestTimeout) * time.Millisecond
 	}
 
 	target := fmt.Sprintf("%s:%d", op.Host, op.Port)
